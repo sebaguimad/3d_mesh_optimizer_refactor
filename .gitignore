@@ -1,0 +1,67 @@
+# ======================
+# Python
+# ======================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# ======================
+# VS Code
+# ======================
+.vscode/
+*.code-workspace
+
+# ======================
+# OS / Windows
+# ======================
+Thumbs.db
+Desktop.ini
+
+# ======================
+# Logs / temp
+# ======================
+*.log
+*.tmp
+
+# ======================
+# Jupyter
+# ======================
+.ipynb_checkpoints/
+
+# ======================
+# Gmsh / FEM / Mesh
+# ======================
+*.msh
+*.vtk
+*.vtu
+*.pos
+*.geo_unrolled
+
+# ======================
+# ML artifacts
+# ======================
+*.joblib
+*.pkl
+*.h5
+*.onnx
+
+# ======================
+# Run outputs
+# ======================
+runs/
+
+# ======================
+# Python cache from subprocess
+# ======================
+*.out
+*.err
