@@ -1,8 +1,3 @@
-diff --git a/README.md b/README.md
-index dd548a3bca246fd5b9af467c633fdbcb1336310b..f2e826d45e3a6851568ca29f4007936d4f913361 100644
---- a/README.md
-+++ b/README.md
-@@ -1,12 +1,33 @@
  ## Instalación
  
  ```bash
