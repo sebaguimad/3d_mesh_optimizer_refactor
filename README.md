@@ -1,22 +1,23 @@
- ## Instalación
- 
- ```bash
- python -m venv .venv
- 
- # Linux/Mac
- source .venv/bin/activate
- 
- # Windows
- .\.venv\Scripts\Activate.ps1
- 
- pip install -r requirements.txt
+## Instalación
+
+```bash
+python -m venv .venv
+
+# Linux/Mac
+source .venv/bin/activate
+
+# Windows
+.\.venv\Scripts\Activate.ps1
+
+pip install -r requirements.txt
+```
 
 ## Pipeline modular (`mesh_app`)
 
 Se añadió una CLI modular que conserva el flujo original de `scripts/run_case_3d.ps1` pero desde Python:
 
 ```bash
-+python -m mesh_app run --geo geo/placa_hole_3d.geo --case demo_01 --sigma-mode dummy
+python -m mesh_app run --geo geo/placa_hole_3d.geo --case demo_01 --sigma-mode dummy
 ```
 
 Opciones principales:

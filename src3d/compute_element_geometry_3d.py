@@ -29,7 +29,7 @@ def main():
     mesh = read_msh2_3d(args.msh)
 
     rows = []
-    for idx, (_eid, n1, n2, n3, n4) in enumerate(mesh.tets):
+    for eid, n1, n2, n3, n4 in mesh.tets:
         p1 = mesh.nodes[n1]
         p2 = mesh.nodes[n2]
         p3 = mesh.nodes[n3]
@@ -56,7 +56,7 @@ def main():
         quality = float((vol ** (2.0/3.0)) / sum_e2) if (vol > 0 and sum_e2 > 0) else 0.0
 
         rows.append({
-            "elem_id": idx,
+            "elem_id": int(eid),
             "n0": n1, "n1": n2, "n2": n3, "n3": n4,
             "cx": cx, "cy": cy, "cz": cz,
             "volume": vol,
