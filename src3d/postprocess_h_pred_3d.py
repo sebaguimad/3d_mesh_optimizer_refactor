@@ -36,19 +36,20 @@ def pick_h_column(df: pd.DataFrame) -> str:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--case", required=True)
+    ap.add_argument("--runs-dir", default="runs")
     ap.add_argument("--min_factor", type=float, default=0.6)   # hmin = min_factor * h_med
     ap.add_argument("--max_factor", type=float, default=1.2)   # hmax = max_factor * h_med
     ap.add_argument("--q_low", type=float, default=0.02)       # winsor
     ap.add_argument("--q_high", type=float, default=0.98)
     args = ap.parse_args()
 
-    case_dir, gmsh_dir, models_dir = ensure_case_dirs(args.case)
+    case_dir, gmsh_dir, models_dir = ensure_case_dirs(args.case, args.runs_dir)
 
     # pred trae: elem_id,cx,cy,cz,h_cbrtV?,sigma_vm_coarse,h_pred
-    pred = pd.read_parquet(h_pred_element_parquet(args.case)).copy()
+    pred = pd.read_parquet(h_pred_element_parquet(args.case, args.runs_dir)).copy()
 
     # geom siempre trae el h base "oficial" de la malla coarse
-    geom = pd.read_parquet(geometry_parquet(args.case, tag=""))[["elem_id", "h_cbrtV"]].copy()
+    geom = pd.read_parquet(geometry_parquet(args.case, tag="", runs_dir=args.runs_dir))[["elem_id", "h_cbrtV"]].copy()
     geom = geom.rename(columns={"h_cbrtV": "h_cbrtV_geom"})
 
     df = pred.merge(geom, on="elem_id", how="left")
@@ -78,7 +79,7 @@ def main():
     h_post = h.clip(lower=hmin, upper=hmax)
     df["h_post"] = h_post
 
-    out = h_pred_post_parquet(args.case)
+    out = h_pred_post_parquet(args.case, args.runs_dir)
     df[["elem_id", "cx", "cy", "cz", "h_pred", "h_post"]].to_parquet(out, index=False)
 
     print(f"OK: post-proceso guardado en: {out}")

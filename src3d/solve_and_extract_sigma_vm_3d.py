@@ -12,6 +12,7 @@ def main() -> None:
         description="Genera sigma_vm por elemento para tag coarse/ref (fallback reproducible)."
     )
     ap.add_argument("--case", required=True)
+    ap.add_argument("--runs-dir", default="runs")
     ap.add_argument("--mesh", required=False, help="Reservado para solver FEM real")
     ap.add_argument("--tag", required=True, choices=["coarse", "ref"])
     ap.add_argument("--geom-tag", default="", help="tag de geometría: '' o 'adapt'")
@@ -23,9 +24,9 @@ def main() -> None:
     ap.add_argument("--r0", type=float, default=0.08)
     args = ap.parse_args()
 
-    ensure_case_dirs(args.case)
+    ensure_case_dirs(args.case, args.runs_dir)
 
-    geom = pd.read_parquet(geometry_parquet(args.case, args.geom_tag)).copy()
+    geom = pd.read_parquet(geometry_parquet(args.case, args.geom_tag, args.runs_dir)).copy()
     required = {"elem_id", "cx", "cy", "cz"}
     missing = [c for c in required if c not in geom.columns]
     if missing:
@@ -40,7 +41,7 @@ def main() -> None:
     else:
         sigma = args.sigma0 + 0.6 * args.amp * np.exp(-(r / (1.4 * args.r0)) ** 2)
 
-    out = sigma_vm_parquet(args.case, args.tag)
+    out = sigma_vm_parquet(args.case, args.tag, args.runs_dir)
     pd.DataFrame({"elem_id": geom["elem_id"].astype(int), "sigma_vm": sigma}).to_parquet(out, index=False)
 
     print(f"OK: creado {out}")

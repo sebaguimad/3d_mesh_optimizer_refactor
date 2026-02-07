@@ -38,7 +38,7 @@ def run_end_to_end(
     cfg.ensure_dirs()
 
     gmsh = GmshService(cfg.gmsh_exe)
-    steps = PipelineStepsService(cfg.python_exe)
+    steps = PipelineStepsService(cfg.python_exe, runs_dir=cfg.runs_dir)
 
     print("=== PIPELINE 3D START ===")
     print(f"case      : {cfg.case}")

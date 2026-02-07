@@ -11,13 +11,13 @@ from src3d.paths3d import ensure_case_dirs, dataset_hstar_parquet, rf_model_path
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--case", required=True)
-    ap.add_argument("--n_estimators", type=int, default=400)
+    ap.add_argument("--runs-dir", default="runs")
     ap.add_argument("--random_state", type=int, default=7)
     args = ap.parse_args()
 
-    ensure_case_dirs(args.case)
+    ensure_case_dirs(args.case, args.runs_dir)
 
-    df = pd.read_parquet(dataset_hstar_parquet(args.case)).copy()
+    df = pd.read_parquet(dataset_hstar_parquet(args.case, args.runs_dir)).copy()
 
     feats = ["cx", "cy", "cz", "h_cbrtV", "sigma_vm_coarse"]
     for c in feats + ["h_star"]:
@@ -38,7 +38,7 @@ def main():
     mse = mean_squared_error(y, pred)
     r2 = r2_score(y, pred)
 
-    out = rf_model_path(args.case)
+    out = rf_model_path(args.case, args.runs_dir)
     joblib.dump({"model": model, "features": feats}, out)
 
     print("OK: entrenamiento terminado")

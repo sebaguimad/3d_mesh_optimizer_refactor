@@ -14,6 +14,7 @@ from src3d.paths3d import (
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--case", required=True)
+    ap.add_argument("--runs-dir", default="runs")
     ap.add_argument("--geom_tag", default="", help="tag de geometría: '' o 'adapt'")
     ap.add_argument("--tol", type=float, default=0.05)
     ap.add_argument("--alpha", type=float, default=0.5)
@@ -22,11 +23,11 @@ def main():
     ap.add_argument("--eps", type=float, default=1e-12)
     args = ap.parse_args()
 
-    case_dir, gmsh_dir, models_dir = ensure_case_dirs(args.case)
+    case_dir, gmsh_dir, models_dir = ensure_case_dirs(args.case, args.runs_dir)
 
-    geom = pd.read_parquet(geometry_parquet(args.case, args.geom_tag)).copy()
-    sc = pd.read_parquet(sigma_vm_parquet(args.case, "coarse")).rename(columns={"sigma_vm": "sigma_vm_coarse"})
-    sr = pd.read_parquet(sigma_vm_parquet(args.case, "ref")).rename(columns={"sigma_vm": "sigma_vm_ref"})
+    geom = pd.read_parquet(geometry_parquet(args.case, args.geom_tag, args.runs_dir)).copy()
+    sc = pd.read_parquet(sigma_vm_parquet(args.case, "coarse", args.runs_dir)).rename(columns={"sigma_vm": "sigma_vm_coarse"})
+    sr = pd.read_parquet(sigma_vm_parquet(args.case, "ref", args.runs_dir)).rename(columns={"sigma_vm": "sigma_vm_ref"})
 
     df = geom.merge(sc, on="elem_id", how="inner").merge(sr, on="elem_id", how="inner")
     if len(df) == 0:
@@ -45,7 +46,7 @@ def main():
     h_star = np.clip(h0 * factor, hmin, hmax)
     df["h_star"] = h_star
 
-    out = dataset_hstar_parquet(args.case)
+    out = dataset_hstar_parquet(args.case, args.runs_dir)
     df.to_parquet(out, index=False)
 
     print(f"OK: merged rows = {len(df)}")

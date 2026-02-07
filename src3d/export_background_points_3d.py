@@ -23,11 +23,12 @@ def write_pos(points_df: pd.DataFrame, out_pos: Path) -> None:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--case", required=True)
+    ap.add_argument("--runs-dir", default="runs")
     args = ap.parse_args()
 
-    ensure_case_dirs(args.case)
+    ensure_case_dirs(args.case, args.runs_dir)
 
-    hp = pd.read_parquet(h_pred_post_parquet(args.case)).copy()
+    hp = pd.read_parquet(h_pred_post_parquet(args.case, args.runs_dir)).copy()
     required = ["cx","cy","cz","h_post"]
     missing = [c for c in required if c not in hp.columns]
     if missing:
@@ -35,8 +36,9 @@ def main():
 
     pts = hp.rename(columns={"cx":"x","cy":"y","cz":"z","h_post":"h"})[["x","y","z","h"]]
 
-    out_csv = background_csv_path(args.case)
-    out_pos = background_pos_path(args.case)
+    out_csv = background_csv_path(args.case, args.runs_dir)
+    out_pos = background_pos_path(args.case, args.runs_dir)
+    
     pts.to_csv(out_csv, index=False)
     write_pos(pts, out_pos)
 

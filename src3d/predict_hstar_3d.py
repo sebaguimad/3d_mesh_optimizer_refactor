@@ -14,19 +14,20 @@ from src3d.paths3d import (
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--case", required=True)
+    ap.add_argument("--runs-dir", default="runs")
     args = ap.parse_args()
 
-    ensure_case_dirs(args.case)
+    ensure_case_dirs(args.case, args.runs_dir)
 
-    pack = joblib.load(rf_model_path(args.case))
+    pack = joblib.load(rf_model_path(args.case, args.runs_dir))
     model = pack["model"]
     feats = pack["features"]
 
-    df = pd.read_parquet(dataset_hstar_parquet(args.case)).copy()
+    df = pd.read_parquet(dataset_hstar_parquet(args.case, args.runs_dir)).copy()
     X = df[feats]
 
     h_pred = model.predict(X)
-    out = h_pred_element_parquet(args.case)
+    out = h_pred_element_parquet(args.case, args.runs_dir)
 
     out_df = df[["elem_id","cx","cy","cz","h_cbrtV","sigma_vm_coarse"]].copy()
     out_df["h_pred"] = h_pred

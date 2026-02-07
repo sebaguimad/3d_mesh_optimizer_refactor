@@ -9,6 +9,7 @@ from src3d.paths3d import ensure_case_dirs, geometry_parquet, sigma_vm_parquet
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--case", required=True)
+    ap.add_argument("--runs-dir", default="runs")
     ap.add_argument("--geom_tag", default="", help="tag de geometría: '' o 'adapt'")
     ap.add_argument("--tipx", type=float, default=0.25)
     ap.add_argument("--tipy", type=float, default=0.5)
@@ -18,9 +19,9 @@ def main():
     ap.add_argument("--r0", type=float, default=0.08)
     args = ap.parse_args()
 
-    case_dir, gmsh_dir, models_dir = ensure_case_dirs(args.case)
+    case_dir, gmsh_dir, models_dir = ensure_case_dirs(args.case, args.runs_dir)
 
-    geom = pd.read_parquet(geometry_parquet(args.case, args.geom_tag)).copy()
+    geom = pd.read_parquet(geometry_parquet(args.case, args.geom_tag, args.runs_dir)).copy()
 
     tip = np.array([args.tipx, args.tipy, args.tipz], dtype=float)
     c = geom[["cx", "cy", "cz"]].values.astype(float)

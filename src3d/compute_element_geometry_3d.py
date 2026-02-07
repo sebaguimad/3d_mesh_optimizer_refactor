@@ -20,11 +20,12 @@ def dist(p, q) -> float:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--case", required=True)
+    ap.add_argument("--runs-dir", default="runs")
     ap.add_argument("--msh", required=True)
     ap.add_argument("--tag", default="", help="sufijo opcional: adapt, ref, etc.")
     args = ap.parse_args()
 
-    case_dir, gmsh_dir, models_dir = ensure_case_dirs(args.case)
+    case_dir, gmsh_dir, models_dir = ensure_case_dirs(args.case, args.runs_dir)
 
     mesh = read_msh2_3d(args.msh)
 
@@ -66,7 +67,7 @@ def main():
         })
 
     df = pd.DataFrame(rows)
-    out = geometry_parquet(args.case, args.tag)
+    out = geometry_parquet(args.case, args.tag, args.runs_dir)
     df.to_parquet(out, index=False)
 
     print(f"OK: guardado {len(df)} tets en: {out}")
