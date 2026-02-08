@@ -12,7 +12,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--case", required=True)
     ap.add_argument("--runs-dir", default="runs")
-    ap.add_argument("--random_state", type=int, default=7)
+    ap.add_argument("--random-state", "--random_state", dest="random_state", type=int, default=7)
+    ap.add_argument("--n-estimators", "--n_estimators", dest="n_estimators", type=int, default=300)
     args = ap.parse_args()
 
     ensure_case_dirs(args.case, args.runs_dir)
