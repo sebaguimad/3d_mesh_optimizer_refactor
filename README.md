@@ -32,3 +32,12 @@ Salida esperada en `runs/<case>/gmsh/`:
 - `coarse_3d.msh`
 - `background_points_3d.pos`
 - `adapt_3d.msh`
+
+
+| Argumento      | Qué hace                                                                       |
+| -------------- | ------------------------------------------------------------------------------ |
+| `--geo`        | Archivo `.geo` de entrada (geometría).                                         |
+| `--case`       | Nombre del caso → se crea carpeta `runs/<case>/`.                              |
+| `--sigma-mode` | Fuente de sigma (`dummy` o `fem`).                                             |
+| `--python-exe` | Python que se usará para correr los subprocesos `src3d` (debe ser tu `.venv`). |
+| `--runs-dir`   | Carpeta base de salida (default: `runs`).                                      |
