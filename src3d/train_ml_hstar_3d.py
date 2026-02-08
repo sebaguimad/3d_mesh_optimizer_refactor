@@ -12,8 +12,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--case", required=True)
     ap.add_argument("--runs-dir", default="runs")
-    ap.add_argument("--random-state", "--random_state", dest="random_state", type=int, default=7)
-    ap.add_argument("--n-estimators", "--n_estimators", dest="n_estimators", type=int, default=300)
+    ap.add_argument("--n_estimators", type=int, default=400)
+    ap.add_argument("--random_state", type=int, default=7)
     args = ap.parse_args()
 
     ensure_case_dirs(args.case, args.runs_dir)
@@ -28,9 +28,11 @@ def main():
     X = df[feats]
     y = df["h_star"]
 
+    n_estimators = getattr(args, "n_estimators", 400)
+    random_state = getattr(args, "random_state", 7)
     model = RandomForestRegressor(
-        n_estimators=args.n_estimators,
-        random_state=args.random_state,
+        n_estimators=n_estimators,
+        random_state=random_state,
         n_jobs=-1
     )
     model.fit(X, y)
