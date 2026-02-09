@@ -30,8 +30,8 @@ def main():
     sigma_coarse = args.sigma0 + args.amp * np.exp(-(r / args.r0) ** 2)
     sigma_ref = args.sigma0 + 0.6 * args.amp * np.exp(-(r / (1.4 * args.r0)) ** 2)
 
-    out_c = sigma_vm_parquet(args.case, "coarse")
-    out_r = sigma_vm_parquet(args.case, "ref")
+    out_c = sigma_vm_parquet(args.case, "coarse", args.runs_dir)
+    out_r = sigma_vm_parquet(args.case, "ref", args.runs_dir)
 
     pd.DataFrame({"elem_id": geom["elem_id"].astype(int), "sigma_vm": sigma_coarse}).to_parquet(out_c, index=False)
     pd.DataFrame({"elem_id": geom["elem_id"].astype(int), "sigma_vm": sigma_ref}).to_parquet(out_r, index=False)
