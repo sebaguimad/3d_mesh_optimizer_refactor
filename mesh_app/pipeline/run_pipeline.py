@@ -77,6 +77,8 @@ def run_end_to_end(
     finally:
         temp_geo.unlink(missing_ok=True)
 
+    steps.compute_geometry(cfg.case, cfg.adapt_msh(), tag="adapt")
+
     print("\n✅ DONE")
     print(f"Coarse: {cfg.coarse_msh()}")
     print(f"Adapt : {cfg.adapt_msh()}")

@@ -7,7 +7,7 @@ import pandas as pd
 def read_geometry(case_dir: Path, tag: str | None) -> pd.DataFrame:
     tag = (tag or "").strip()
     fname = "element_geometry_3d.parquet" if tag == "" else f"element_geometry_3d_{tag}.parquet"
-    path = case_dir / fname
+    path = case_dir / "gmsh" / fname
     if not path.exists():
         raise FileNotFoundError(f"No existe: {path}")
     return pd.read_parquet(path)
@@ -57,6 +57,7 @@ def plot_hist_overlay(coarse: pd.DataFrame, adapt: pd.DataFrame, title: str, bin
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--case", required=True)
+    ap.add_argument("--runs-dir", default="runs", help="Carpeta base de salida (default: runs)")
     ap.add_argument("--coarse_tag", default="")
     ap.add_argument("--adapt_tag", default="adapt")
     ap.add_argument("--mode", choices=["separate", "overlay", "both"], default="separate")
@@ -67,7 +68,7 @@ def main():
     ap.add_argument("--no_show", action="store_true", help="No abrir ventanas, solo guardar (ideal para scripts)")
     args = ap.parse_args()
 
-    case_dir = Path("runs") / args.case
+    case_dir = Path(args.runs_dir) / args.case
     coarse = read_geometry(case_dir, args.coarse_tag)
     adapt  = read_geometry(case_dir, args.adapt_tag)
 

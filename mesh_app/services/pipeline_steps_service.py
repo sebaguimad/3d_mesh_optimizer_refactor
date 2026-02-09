@@ -15,7 +15,7 @@ class PipelineStepsService:
     def _runs_dir_args(self) -> list[str]:
         return ["--runs-dir", str(self.runs_dir)]
 
-    def compute_geometry(self, case: str, msh: Path) -> None:
+    def compute_geometry(self, case: str, msh: Path, tag: str = "") -> None:
         run_cmd([
             self.python_exe,
             "-m",
@@ -24,6 +24,8 @@ class PipelineStepsService:
             case,
             "--msh",
             str(msh),
+            "--tag",
+            tag,
             *self._runs_dir_args(),
         ])
 
