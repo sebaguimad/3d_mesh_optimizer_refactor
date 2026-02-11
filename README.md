@@ -26,12 +26,18 @@ Opciones principales:
 - `--gmsh-exe gmsh`
 - `--python-exe python`
 - `--runs-dir runs`
+- `--fem-backend fallback|fenics_csv`
+- `--fem-sigma-coarse-file <csv/parquet>`
+- `--fem-sigma-ref-file <csv/parquet>`
 
 Salida esperada en `runs/<case>/gmsh/`:
 
 - `coarse_3d.msh`
 - `background_points_3d.pos`
 - `adapt_3d.msh`
+- `--fem-backend fallback|fenics_csv`
+- `--fem-sigma-coarse-file <csv/parquet>`
+- `--fem-sigma-ref-file <csv/parquet>`
 
 
 | Argumento      | Qué hace                                                                       |
@@ -42,6 +48,17 @@ Salida esperada en `runs/<case>/gmsh/`:
 | `--python-exe` | Python que se usará para correr los subprocesos `src3d` (debe ser tu `.venv`). |
 | `--runs-dir`   | Carpeta base de salida (default: `runs`).                                      |
 
+
+## Flujo completo: cómo funciona
+
+1. Genera una malla coarse con Gmsh.
+2. Calcula la geometría de elementos (centroide, volumen, h_cbrtV) y la guarda en Parquet.
+3. Genera sigma (dummy o FEM), entrena un modelo y predice tamaños objetivo.
+4. Exporta un *background field* (`background_points_3d.pos`) para el remallado.
+5. Genera la malla adaptativa con Gmsh.
+6. Calcula la geometría de elementos para la malla adaptativa (Parquet con sufijo `_adapt`).
+
+## Uso recomendado (PowerShell)
 
 ## Flujo completo: cómo funciona
 
@@ -72,4 +89,37 @@ Salida esperada en `runs/<case>/gmsh/`:
 
 ```powershell
 .\.venv\Scripts\python.exe -m mesh_app compare-meshes --coarse runs/demo_01/gmsh/coarse_3d.msh --adapt runs/demo_01/gmsh/adapt_3d.msh --outdir mesh_compare_out --python-exe .\.venv\Scripts\python.exe
+```
+
+## FEM real (integración rápida con FEniCS)
+
+El modo `--sigma-mode fem` acepta dos backends:
+
+- `fallback` (actual sintético, por defecto)
+- `fenics_csv` (consume resultados FEM reales exportados desde FEniCS)
+
+Contrato de salida requerido por el pipeline:
+
+- columnas: `elem_id`, `sigma_vm`
+- se escriben en:
+  - `runs/<case>/gmsh/sigma_vm_coarse_3d.parquet`
+  - `runs/<case>/gmsh/sigma_vm_ref_3d.parquet`
+
+### Opción A: dejar archivos por convención
+
+Si exportas desde FEniCS a:
+
+- `runs/<case>/gmsh/fenics_sigma_vm_coarse.csv`
+- `runs/<case>/gmsh/fenics_sigma_vm_ref.csv`
+
+puedes correr:
+
+```powershell
+.\.venv\Scripts\python.exe -m mesh_app run --geo geo/perno_slot_crosshole.geo --case perno_01 --sigma-mode fem --fem-backend fenics_csv --python-exe .\.venv\Scripts\python.exe
+```
+
+### Opción B: pasar archivos explícitos
+
+```powershell
+.\.venv\Scripts\python.exe -m mesh_app run --geo geo/perno_slot_crosshole.geo --case perno_01 --sigma-mode fem --fem-backend fenics_csv --fem-sigma-coarse-file ruta/al/coarse.csv --fem-sigma-ref-file ruta/al/ref.csv --python-exe .\.venv\Scripts\python.exe
 ```

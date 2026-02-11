@@ -55,7 +55,13 @@ def run_end_to_end(
     if cfg.sigma_mode == "dummy":
         steps.compute_sigma_dummy(cfg.case, tipx, tipy, tipz)
     else:
-        steps.compute_sigma_fem(cfg.case, cfg.coarse_msh())
+        steps.compute_sigma_fem(
+            cfg.case,
+            cfg.coarse_msh(),
+            backend=cfg.fem_backend,
+            sigma_coarse_file=cfg.fem_sigma_coarse_file,
+            sigma_ref_file=cfg.fem_sigma_ref_file,
+        )
 
     # 4) ML chain
     steps.compute_hstar(cfg.case)

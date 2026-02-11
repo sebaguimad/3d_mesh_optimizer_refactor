@@ -29,6 +29,9 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--tipx", type=float, default=0.25)
     run.add_argument("--tipy", type=float, default=0.50)
     run.add_argument("--tipz", type=float, default=0.005)
+    run.add_argument("--fem-backend", default="fallback", choices=["fallback", "fenics_csv"])
+    run.add_argument("--fem-sigma-coarse-file", type=Path, default=None)
+    run.add_argument("--fem-sigma-ref-file", type=Path, default=None)
 
     # -------------------------
     # plot-hist
@@ -70,6 +73,9 @@ def main() -> None:
             gmsh_exe=args.gmsh_exe,
             python_exe=args.python_exe,
             sigma_mode=args.sigma_mode,
+            fem_backend=args.fem_backend,
+            fem_sigma_coarse_file=args.fem_sigma_coarse_file,
+            fem_sigma_ref_file=args.fem_sigma_ref_file,
         )
         run_end_to_end(cfg, tipx=args.tipx, tipy=args.tipy, tipz=args.tipz)
 

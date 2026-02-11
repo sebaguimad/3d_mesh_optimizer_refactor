@@ -45,9 +45,17 @@ class PipelineStepsService:
             *self._runs_dir_args(),
         ])
 
-    def compute_sigma_fem(self, case: str, msh: Path) -> None:
+    def compute_sigma_fem(
+        self,
+        case: str,
+        msh: Path,
+        backend: str = "fallback",
+        sigma_coarse_file: Path | None = None,
+        sigma_ref_file: Path | None = None,
+    ) -> None:
+        sigma_files = {"coarse": sigma_coarse_file, "ref": sigma_ref_file}
         for tag in ("coarse", "ref"):
-            run_cmd([
+            cmd = [
                 self.python_exe,
                 "-m",
                 "src3d.solve_and_extract_sigma_vm_3d",
@@ -57,8 +65,14 @@ class PipelineStepsService:
                 str(msh),
                 "--tag",
                 tag,
+                "--backend",
+                backend,
                 *self._runs_dir_args(),
-            ])
+            ]
+            sigma_file = sigma_files[tag]
+            if sigma_file is not None:
+                cmd.extend(["--sigma-file", str(sigma_file)])
+            run_cmd(cmd)
 
     def compute_hstar(self, case: str) -> None:
         run_cmd([self.python_exe, "-m", "src3d.compute_hstar_3d", "--case", case, *self._runs_dir_args()])
