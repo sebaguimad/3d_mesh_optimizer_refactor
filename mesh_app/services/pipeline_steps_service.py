@@ -1,5 +1,4 @@
 # mesh_app/services/pipeline_steps_service.py
-# pipeline_steps_service.py
 from __future__ import annotations
 
 from pathlib import Path
@@ -48,7 +47,6 @@ class PipelineStepsService:
     def compute_sigma_fem(
         self,
         case: str,
-        msh: Path,
         backend: str = "fallback",
         sigma_coarse_file: Path | None = None,
         sigma_ref_file: Path | None = None,
@@ -61,8 +59,6 @@ class PipelineStepsService:
                 "src3d.solve_and_extract_sigma_vm_3d",
                 "--case",
                 case,
-                "--mesh",
-                str(msh),
                 "--tag",
                 tag,
                 "--backend",

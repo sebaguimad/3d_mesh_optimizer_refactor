@@ -57,7 +57,6 @@ def run_end_to_end(
     else:
         steps.compute_sigma_fem(
             cfg.case,
-            cfg.coarse_msh(),
             backend=cfg.fem_backend,
             sigma_coarse_file=cfg.fem_sigma_coarse_file,
             sigma_ref_file=cfg.fem_sigma_ref_file,

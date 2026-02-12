@@ -37,7 +37,6 @@ def main() -> None:
     )
     ap.add_argument("--case", required=True)
     ap.add_argument("--runs-dir", default="runs")
-    ap.add_argument("--mesh", required=False, help="Reservado para solver FEM real")
     ap.add_argument("--tag", required=True, choices=["coarse", "ref"])
     ap.add_argument("--geom-tag", default="", help="tag de geometría: '' o 'adapt'")
 
