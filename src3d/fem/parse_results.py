@@ -1,9 +1,14 @@
+# parse_results.py
 from __future__ import annotations
 
 from pathlib import Path
 
 import pandas as pd
 
+def _normalize_input_path(path: Path) -> Path:
+    """Normaliza rutas provenientes de CLI (espacios/comillas accidentales)."""
+    clean = str(path).strip().strip('"').strip("'")
+    return Path(clean).expanduser()
 
 def read_sigma_vm_table(path: Path) -> pd.DataFrame:
     """
@@ -12,8 +17,14 @@ def read_sigma_vm_table(path: Path) -> pd.DataFrame:
       - sigma_vm (float)
     Soporta CSV o Parquet.
     """
+    path = _normalize_input_path(path)
     if not path.exists():
-        raise FileNotFoundError(f"No existe archivo FEM: {path}")
+        cwd = Path.cwd()
+        raise FileNotFoundError(
+            "No existe archivo FEM: "
+            f"{path} (cwd={cwd}). "
+            "Verifica la ruta o usa una ruta absoluta válida."
+        )
 
     if path.suffix.lower() == ".csv":
         df = pd.read_csv(path)
