@@ -26,7 +26,7 @@ Opciones principales:
 - `--gmsh-exe gmsh`
 - `--python-exe python`
 - `--runs-dir runs`
-- `--fem-backend fallback|fenics_csv`
+- `--fem-backend fallback|calculix`
 - `--fem-sigma-coarse-file <csv/parquet>`
 - `--fem-sigma-ref-file <csv/parquet>`
 
@@ -35,7 +35,7 @@ Salida esperada en `runs/<case>/gmsh/`:
 - `coarse_3d.msh`
 - `background_points_3d.pos`
 - `adapt_3d.msh`
-- `--fem-backend fallback|fenics_csv`
+- `--fem-backend fallback|calculix`
 - `--fem-sigma-coarse-file <csv/parquet>`
 - `--fem-sigma-ref-file <csv/parquet>`
 
@@ -96,7 +96,7 @@ Salida esperada en `runs/<case>/gmsh/`:
 El modo `--sigma-mode fem` acepta dos backends:
 
 - `fallback` (actual sintético, por defecto)
-- `fenics_csv` (consume resultados FEM reales exportados desde FEniCS)
+- `calculix` (consume resultados FEM reales en tabla `elem_id,sigma_vm`)
 
 Contrato de salida requerido por el pipeline:
 
@@ -107,19 +107,19 @@ Contrato de salida requerido por el pipeline:
 
 ### Opción A: dejar archivos por convención
 
-Si exportas desde FEniCS a:
+Si dejas por convención los CSV de CalculiX en:
 
-- `runs/<case>/gmsh/fenics_sigma_vm_coarse.csv`
-- `runs/<case>/gmsh/fenics_sigma_vm_ref.csv`
+- `runs/<case>/ccx/coarse/sigma_vm.csv`
+- `runs/<case>/ccx/ref/sigma_vm.csv`
 
 puedes correr:
 
 ```powershell
-.\.venv\Scripts\python.exe -m mesh_app run --geo geo/perno_slot_crosshole.geo --case perno_01 --sigma-mode fem --fem-backend fenics_csv --python-exe .\.venv\Scripts\python.exe
+.\.venv\Scripts\python.exe -m mesh_app run --geo geo/perno_slot_crosshole.geo --case perno_01 --sigma-mode fem --fem-backend calculix --python-exe .\.venv\Scripts\python.exe
 ```
 
 ### Opción B: pasar archivos explícitos
 
 ```powershell
-.\.venv\Scripts\python.exe -m mesh_app run --geo geo/perno_slot_crosshole.geo --case perno_01 --sigma-mode fem --fem-backend fenics_csv --fem-sigma-coarse-file ruta/al/coarse.csv --fem-sigma-ref-file ruta/al/ref.csv --python-exe .\.venv\Scripts\python.exe
+.\.venv\Scripts\python.exe -m mesh_app run --geo geo/perno_slot_crosshole.geo --case perno_01 --sigma-mode fem --fem-backend calculix --fem-sigma-coarse-file ruta/al/coarse.csv --fem-sigma-ref-file ruta/al/ref.csv --python-exe .\.venv\Scripts\python.exe
 ```

@@ -78,7 +78,7 @@ class PipelineStepsService:
                 if sf is not None:
                     p = _normalize_cli_path(sf)
                     if not p.exists():
-                        raise FileNotFoundError(f"No existe sigma-file (calculix) para tag={tag}: {p}")
+                        raise FileNotFoundError(f"No existe sigma-file ({backend}) para tag={tag}: {p}")
                     cmd.extend(["--sigma-file", str(p)])
 
             # backend fallback: no necesita archivos

@@ -6,7 +6,6 @@ from pathlib import Path
 from mesh_app.config import RunConfig
 from mesh_app.services.gmsh_service import GmshService
 from mesh_app.services.pipeline_steps_service import PipelineStepsService
-from src3d.fem.fenics_runner import default_sigma_file
 
 def _build_temp_adapt_geo(geo_abs: Path, bg_local_name: str = "background_points_3d.pos") -> str:
     return f'''SetFactory("OpenCASCADE");
@@ -27,27 +26,6 @@ Mesh.Optimize = 1;
 Mesh.OptimizeNetgen = 1;
 '''
 
-def _normalize_cli_path(path: Path | str) -> Path:
-    clean = str(path).strip().strip('"').strip("'")
-    return Path(clean).expanduser()
-
-
-def _resolve_fem_sigma_inputs(cfg: RunConfig) -> tuple[Path, Path]:
-    coarse_raw = cfg.fem_sigma_coarse_file or default_sigma_file(cfg.case, cfg.runs_dir, "coarse")
-    ref_raw = cfg.fem_sigma_ref_file or default_sigma_file(cfg.case, cfg.runs_dir, "ref")
-
-    coarse = _normalize_cli_path(coarse_raw)
-    ref = _normalize_cli_path(ref_raw)
-
-    missing = [p for p in (coarse, ref) if not p.exists()]
-    if missing:
-        missing_txt = ", ".join(str(p) for p in missing)
-        raise FileNotFoundError(
-            "Faltan archivos FEM para backend fenics_csv antes de iniciar el pipeline: "
-            f"{missing_txt}. "
-            "Exporta fenics_sigma_vm_coarse/ref.csv o pasa --fem-sigma-coarse-file y --fem-sigma-ref-file con rutas reales."
-        )
-    return coarse, ref
 
 def run_end_to_end(
     cfg: RunConfig,
@@ -57,20 +35,6 @@ def run_end_to_end(
 ) -> None:
     cfg.validate()
     cfg.ensure_dirs()
-
-    if cfg.sigma_mode == "fem" and cfg.fem_backend == "fenics_csv":
-        fem_coarse, fem_ref = _resolve_fem_sigma_inputs(cfg)
-        cfg = RunConfig(
-            case=cfg.case,
-            geo=cfg.geo,
-            runs_dir=cfg.runs_dir,
-            gmsh_exe=cfg.gmsh_exe,
-            python_exe=cfg.python_exe,
-            sigma_mode=cfg.sigma_mode,
-            fem_backend=cfg.fem_backend,
-            fem_sigma_coarse_file=fem_coarse,
-            fem_sigma_ref_file=fem_ref,
-        )
 
 
 

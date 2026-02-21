@@ -29,7 +29,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--tipx", type=float, default=0.25)
     run.add_argument("--tipy", type=float, default=0.50)
     run.add_argument("--tipz", type=float, default=0.005)
-    run.add_argument("--fem-backend", default="fallback", choices=["fallback", "fenics_csv"])
+    run.add_argument("--fem-backend", default="fallback", choices=["fallback", "calculix"])
     run.add_argument("--fem-sigma-coarse-file", type=Path, default=None)
     run.add_argument("--fem-sigma-ref-file", type=Path, default=None)
 

@@ -13,7 +13,7 @@ class RunConfig:
     gmsh_exe: str = "gmsh"
     python_exe: str = "python"
     sigma_mode: str = "dummy"  # dummy | fem
-    fem_backend: str = "fallback"  # fallback | fenics_csv
+    fem_backend: str = "fallback"  # fallback | calculix
     fem_sigma_coarse_file: Path | None = None
     fem_sigma_ref_file: Path | None = None
 
@@ -48,5 +48,5 @@ class RunConfig:
             raise FileNotFoundError(f"No existe geometría: {self.geo}")
         if self.sigma_mode not in {"dummy", "fem"}:
             raise ValueError("sigma_mode debe ser 'dummy' o 'fem'")
-        if self.fem_backend not in {"fallback", "fenics_csv"}:
-            raise ValueError("fem_backend debe ser 'fallback' o 'fenics_csv'")
+        if self.fem_backend not in {"fallback", "calculix"}:
+            raise ValueError("fem_backend debe ser 'fallback' o 'calculix'")
