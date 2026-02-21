@@ -12,7 +12,7 @@ class RunConfig:
     runs_dir: Path = Path("runs")
     gmsh_exe: str = "gmsh"
     python_exe: str = "python"
-    sigma_mode: str = "dummy"  # dummy | fem
+    sigma_mode: str = "auto"  # auto | dummy | fem
     fem_backend: str = "fallback"  # fallback | calculix
     fem_sigma_coarse_file: Path | None = None
     fem_sigma_ref_file: Path | None = None
@@ -46,7 +46,7 @@ class RunConfig:
     def validate(self) -> None:
         if not self.geo.exists():
             raise FileNotFoundError(f"No existe geometría: {self.geo}")
-        if self.sigma_mode not in {"dummy", "fem"}:
-            raise ValueError("sigma_mode debe ser 'dummy' o 'fem'")
+        if self.sigma_mode not in {"auto", "dummy", "fem"}:
+            raise ValueError("sigma_mode debe ser 'auto', 'dummy' o 'fem'")
         if self.fem_backend not in {"fallback", "calculix"}:
             raise ValueError("fem_backend debe ser 'fallback' o 'calculix'")

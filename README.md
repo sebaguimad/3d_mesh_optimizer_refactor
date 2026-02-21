@@ -17,7 +17,7 @@ pip install -r requirements.txt
 Se añadió una CLI modular que conserva el flujo original de `scripts/run_case_3d.ps1` pero desde Python:
 
 ```bash
-python -m mesh_app run --geo geo/placa_hole_3d.geo --case demo_01 --sigma-mode dummy
+python -m mesh_app run --geo geo/placa_hole_3d.geo --case demo_01
 ```
 
 Opciones principales:
@@ -29,6 +29,7 @@ Opciones principales:
 - `--fem-backend fallback|calculix`
 - `--fem-sigma-coarse-file <csv/parquet>`
 - `--fem-sigma-ref-file <csv/parquet>`
+- `--[no-]fem-auto-fallback` (default: activo; usa fallback si faltan CSV FEM)
 
 Salida esperada en `runs/<case>/gmsh/`:
 
@@ -44,19 +45,24 @@ Salida esperada en `runs/<case>/gmsh/`:
 | -------------- | ------------------------------------------------------------------------------ |
 | `--geo`        | Archivo `.geo` de entrada (geometría).                                         |
 | `--case`       | Nombre del caso → se crea carpeta `runs/<case>/`.                              |
-| `--sigma-mode` | Fuente de sigma (`dummy` o `fem`).                                             |
+| `--sigma-mode` | Fuente de sigma (`auto`, `dummy` o `fem`). 
 | `--python-exe` | Python que se usará para correr los subprocesos `src3d` (debe ser tu `.venv`). |
 | `--runs-dir`   | Carpeta base de salida (default: `runs`).                                      |
 
 
-## Flujo completo: cómo funciona
 
-1. Genera una malla coarse con Gmsh.
-2. Calcula la geometría de elementos (centroide, volumen, h_cbrtV) y la guarda en Parquet.
-3. Genera sigma (dummy o FEM), entrena un modelo y predice tamaños objetivo.
-4. Exporta un *background field* (`background_points_3d.pos`) para el remallado.
-5. Genera la malla adaptativa con Gmsh.
-6. Calcula la geometría de elementos para la malla adaptativa (Parquet con sufijo `_adapt`).
+## Ejecución en un solo comando (recomendada)
+
+Si quieres que todo corra de punta a punta con un único comando y que FEM sea opcional, usa `sigma-mode auto` (por defecto):
+
+```powershell
+.\.venv\Scripts\python.exe -m mesh_app run --geo geo/perno_slot_crosshole.geo --case perno_01 --python-exe .\.venv\Scripts\python.exe
+```
+
+Comportamiento de `auto`:
+- Si existen ambos archivos FEM (`runs/<case>/ccx/coarse/sigma_vm.csv` y `runs/<case>/ccx/ref/sigma_vm.csv`, o los pasados por flags), usa CalculiX.
+- Si no existen, usa `dummy` automáticamente y continúa el pipeline completo.
+
 
 ## Uso recomendado (PowerShell)
 
@@ -95,8 +101,8 @@ Salida esperada en `runs/<case>/gmsh/`:
 
 El modo `--sigma-mode fem` acepta dos backends:
 
-- `fallback` (actual sintético, por defecto)
-- `calculix` (consume resultados FEM reales en tabla `elem_id,sigma_vm`)
+- `fallback` (sintético)
+- `calculix` (consume una tabla FEM externa `elem_id,sigma_vm`; puede venir de CalculiX, ANSYS u otro solver)
 
 Contrato de salida requerido por el pipeline:
 

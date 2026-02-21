@@ -11,6 +11,9 @@ def _normalize_cli_path(path: Path | str) -> Path:
     return Path(clean).expanduser()
 
 
+def _default_sigma_file(case: str, runs_dir: Path, tag: str) -> Path:
+    return runs_dir / case / "ccx" / tag / "sigma_vm.csv"
+
 class PipelineStepsService:
     def __init__(self, python_exe: str = "python", runs_dir: Path = Path("runs")):
         self.python_exe = python_exe
@@ -50,6 +53,7 @@ class PipelineStepsService:
         ccx_workdir_coarse: Path | None = None,
         ccx_workdir_ref: Path | None = None,
         ccx_run: bool = False,
+        auto_fallback_if_missing: bool = True,
     ) -> None:
         sigma_files: dict[str, Path | None] = {"coarse": sigma_coarse_file, "ref": sigma_ref_file}
         workdirs: dict[str, Path | None] = {"coarse": ccx_workdir_coarse, "ref": ccx_workdir_ref}
@@ -75,12 +79,29 @@ class PipelineStepsService:
                     cmd.extend(["--ccx-workdir", str(_normalize_cli_path(wd))])
 
                 sf = sigma_files[tag]
-                if sf is not None:
-                    p = _normalize_cli_path(sf)
-                    if not p.exists():
-                        raise FileNotFoundError(f"No existe sigma-file ({backend}) para tag={tag}: {p}")
-                    cmd.extend(["--sigma-file", str(p)])
+                sigma_path = _normalize_cli_path(sf) if sf is not None else _default_sigma_file(case, self.runs_dir, tag)
 
+                if sigma_path.exists():
+                    cmd.extend(["--sigma-file", str(sigma_path)])
+                elif auto_fallback_if_missing:
+                    print(
+                        f"⚠️  No existe sigma-file calculix para tag={tag}: {sigma_path}. "
+                        "Se usará backend fallback para este tag."
+                    )
+                    cmd = [
+                        self.python_exe,
+                        "-m",
+                        "src3d.solve_and_extract_sigma_vm_3d",
+                        "--case", case,
+                        "--tag", tag,
+                        "--backend", "fallback",
+                        *self._runs_dir_args(),
+                    ]
+                else:
+                    raise FileNotFoundError(
+                        f"No existe sigma-file ({backend}) para tag={tag}: {sigma_path}. "
+                        "Entrega --fem-sigma-*-file o activa --fem-auto-fallback."
+                    )
             # backend fallback: no necesita archivos
 
             run_cmd(cmd)

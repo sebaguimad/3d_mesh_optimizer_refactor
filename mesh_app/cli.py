@@ -22,7 +22,7 @@ def build_parser() -> argparse.ArgumentParser:
     run = sub.add_parser("run", help="Ejecuta pipeline end-to-end")
     run.add_argument("--geo", required=True, type=Path, help="Ruta al .geo")
     run.add_argument("--case", required=True, help="Nombre del caso (runs/<case>)")
-    run.add_argument("--sigma-mode", default="dummy", choices=["dummy", "fem"])
+    run.add_argument("--sigma-mode", default="auto", choices=["auto", "dummy", "fem"], help="Fuente de sigma: auto (usa FEM si está disponible, si no dummy), dummy o fem")
     run.add_argument("--gmsh-exe", default="gmsh")
     run.add_argument("--python-exe", default="python")
     run.add_argument("--runs-dir", type=Path, default=Path("runs"))
@@ -32,6 +32,15 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--fem-backend", default="fallback", choices=["fallback", "calculix"])
     run.add_argument("--fem-sigma-coarse-file", type=Path, default=None)
     run.add_argument("--fem-sigma-ref-file", type=Path, default=None)
+    run.add_argument(
+        "--fem-auto-fallback",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "Si falta sigma CSV/Parquet en backend calculix, cae automáticamente "
+            "a sigma sintético (fallback) para no abortar el pipeline."
+        ),
+    )
 
     # -------------------------
     # plot-hist
@@ -77,7 +86,13 @@ def main() -> None:
             fem_sigma_coarse_file=args.fem_sigma_coarse_file,
             fem_sigma_ref_file=args.fem_sigma_ref_file,
         )
-        run_end_to_end(cfg, tipx=args.tipx, tipy=args.tipy, tipz=args.tipz)
+        run_end_to_end(
+            cfg,
+            tipx=args.tipx,
+            tipy=args.tipy,
+            tipz=args.tipz,
+            fem_auto_fallback=args.fem_auto_fallback,
+        )
 
     elif args.command == "plot-hist":
         cmd = [

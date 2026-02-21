@@ -67,11 +67,11 @@ def main() -> None:
 
     ap.add_argument("--backend", choices=["fallback", "calculix"], default="fallback")
 
-    # Entrada genérica para calculix: CSV/Parquet con elem_id,sigma_vm
+    # Entrada genérica para FEM externo (CalculiX/ANSYS): CSV/Parquet con elem_id,sigma_vm
     ap.add_argument(
         "--sigma-file",
         default="",
-        help="(calculix) Archivo elem_id,sigma_vm (.csv/.parquet). "
+        help="(FEM externo) Archivo elem_id,sigma_vm (.csv/.parquet). "
              "Si no se da: runs/<case>/ccx/<tag>/sigma_vm.csv",
     )
 

@@ -7,6 +7,17 @@ from mesh_app.config import RunConfig
 from mesh_app.services.gmsh_service import GmshService
 from mesh_app.services.pipeline_steps_service import PipelineStepsService
 
+def _default_ccx_sigma_paths(cfg: RunConfig) -> tuple[Path, Path]:
+    base = cfg.runs_dir / cfg.case / "ccx"
+    return base / "coarse" / "sigma_vm.csv", base / "ref" / "sigma_vm.csv"
+
+
+def _can_run_calculix_with_inputs(cfg: RunConfig) -> bool:
+    coarse_default, ref_default = _default_ccx_sigma_paths(cfg)
+    coarse = cfg.fem_sigma_coarse_file or coarse_default
+    ref = cfg.fem_sigma_ref_file or ref_default
+    return coarse.exists() and ref.exists()
+
 def _build_temp_adapt_geo(geo_abs: Path, bg_local_name: str = "background_points_3d.pos") -> str:
     return f'''SetFactory("OpenCASCADE");
 
@@ -32,6 +43,7 @@ def run_end_to_end(
     tipx: float = 0.25,
     tipy: float = 0.50,
     tipz: float = 0.005,
+    fem_auto_fallback: bool = True,
 ) -> None:
     cfg.validate()
     cfg.ensure_dirs()
@@ -55,13 +67,27 @@ def run_end_to_end(
     # 3) sigma source
     if cfg.sigma_mode == "dummy":
         steps.compute_sigma_dummy(cfg.case, tipx, tipy, tipz)
-    else:
+    elif cfg.sigma_mode == "fem":
         steps.compute_sigma_fem(
             cfg.case,
             backend=cfg.fem_backend,
             sigma_coarse_file=cfg.fem_sigma_coarse_file,
             sigma_ref_file=cfg.fem_sigma_ref_file,
+            auto_fallback_if_missing=fem_auto_fallback,
         )
+    else:  # auto
+        if cfg.fem_backend == "calculix" and _can_run_calculix_with_inputs(cfg):
+            print("sigma_mode=auto -> se encontraron insumos FEM; usando backend calculix")
+            steps.compute_sigma_fem(
+                cfg.case,
+                backend="calculix",
+                sigma_coarse_file=cfg.fem_sigma_coarse_file,
+                sigma_ref_file=cfg.fem_sigma_ref_file,
+                auto_fallback_if_missing=False,
+            )
+        else:
+            print("sigma_mode=auto -> FEM no disponible; usando sigma dummy")
+            steps.compute_sigma_dummy(cfg.case, tipx, tipy, tipz)    
 
     # 4) ML chain
     steps.compute_hstar(cfg.case)
