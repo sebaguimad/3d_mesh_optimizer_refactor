@@ -10,7 +10,6 @@ def _normalize_cli_path(path: Path | str) -> Path:
     clean = str(path).strip().strip('"').strip("'")
     return Path(clean).expanduser()
 
-
 def _default_sigma_file(case: str, runs_dir: Path, tag: str) -> Path:
     return runs_dir / case / "ccx" / tag / "sigma_vm.csv"
 
@@ -82,6 +81,14 @@ class PipelineStepsService:
                 sigma_path = _normalize_cli_path(sf) if sf is not None else _default_sigma_file(case, self.runs_dir, tag)
 
                 if sigma_path.exists():
+                    cmd.extend(["--sigma-file", str(sigma_path)])
+                elif ccx_run:
+                    # Permite ejecutar ccx primero y que un postproceso externo deje sigma_vm.csv.
+                    # Si no aparece, fallará dentro del módulo con mensaje explícito.
+                    print(
+                        f"ℹ️  sigma-file no existe aún para tag={tag}: {sigma_path}. "
+                        "Se intentará generar durante --fem-ccx-run."
+                    )
                     cmd.extend(["--sigma-file", str(sigma_path)])
                 elif auto_fallback_if_missing:
                     print(

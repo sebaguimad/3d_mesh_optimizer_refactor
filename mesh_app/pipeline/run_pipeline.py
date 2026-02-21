@@ -73,6 +73,11 @@ def run_end_to_end(
             backend=cfg.fem_backend,
             sigma_coarse_file=cfg.fem_sigma_coarse_file,
             sigma_ref_file=cfg.fem_sigma_ref_file,
+            ccx_exe=cfg.fem_ccx_exe,
+            ccx_job=cfg.fem_ccx_job,
+            ccx_workdir_coarse=cfg.fem_ccx_workdir_coarse,
+            ccx_workdir_ref=cfg.fem_ccx_workdir_ref,
+            ccx_run=cfg.fem_ccx_run,
             auto_fallback_if_missing=fem_auto_fallback,
         )
     else:  # auto
@@ -83,11 +88,16 @@ def run_end_to_end(
                 backend="calculix",
                 sigma_coarse_file=cfg.fem_sigma_coarse_file,
                 sigma_ref_file=cfg.fem_sigma_ref_file,
+                ccx_exe=cfg.fem_ccx_exe,
+                ccx_job=cfg.fem_ccx_job,
+                ccx_workdir_coarse=cfg.fem_ccx_workdir_coarse,
+                ccx_workdir_ref=cfg.fem_ccx_workdir_ref,
+                ccx_run=cfg.fem_ccx_run,
                 auto_fallback_if_missing=False,
             )
         else:
             print("sigma_mode=auto -> FEM no disponible; usando sigma dummy")
-            steps.compute_sigma_dummy(cfg.case, tipx, tipy, tipz)    
+            steps.compute_sigma_dummy(cfg.case, tipx, tipy, tipz)  
 
     # 4) ML chain
     steps.compute_hstar(cfg.case)

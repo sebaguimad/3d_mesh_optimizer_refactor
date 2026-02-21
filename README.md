@@ -22,7 +22,7 @@ python -m mesh_app run --geo geo/placa_hole_3d.geo --case demo_01
 
 Opciones principales:
 
-- `--sigma-mode dummy|fem`
+- `--sigma-mode auto|dummy|fem` (default: `auto`)
 - `--gmsh-exe gmsh`
 - `--python-exe python`
 - `--runs-dir runs`
@@ -30,6 +30,7 @@ Opciones principales:
 - `--fem-sigma-coarse-file <csv/parquet>`
 - `--fem-sigma-ref-file <csv/parquet>`
 - `--[no-]fem-auto-fallback` (default: activo; usa fallback si faltan CSV FEM)
+- `--[no-]fem-ccx-run`, `--fem-ccx-job`, `--fem-ccx-exe`, `--fem-ccx-workdir-*` para ejecutar ccx en secuencia
 
 Salida esperada en `runs/<case>/gmsh/`:
 
@@ -50,7 +51,6 @@ Salida esperada en `runs/<case>/gmsh/`:
 | `--runs-dir`   | Carpeta base de salida (default: `runs`).                                      |
 
 
-
 ## Ejecución en un solo comando (recomendada)
 
 Si quieres que todo corra de punta a punta con un único comando y que FEM sea opcional, usa `sigma-mode auto` (por defecto):
@@ -63,8 +63,6 @@ Comportamiento de `auto`:
 - Si existen ambos archivos FEM (`runs/<case>/ccx/coarse/sigma_vm.csv` y `runs/<case>/ccx/ref/sigma_vm.csv`, o los pasados por flags), usa CalculiX.
 - Si no existen, usa `dummy` automáticamente y continúa el pipeline completo.
 
-
-## Uso recomendado (PowerShell)
 
 ## Flujo completo: cómo funciona
 
@@ -129,3 +127,14 @@ puedes correr:
 ```powershell
 .\.venv\Scripts\python.exe -m mesh_app run --geo geo/perno_slot_crosshole.geo --case perno_01 --sigma-mode fem --fem-backend calculix --fem-sigma-coarse-file ruta/al/coarse.csv --fem-sigma-ref-file ruta/al/ref.csv --python-exe .\.venv\Scripts\python.exe
 ```
+
+
+### Opción D: FEM en secuencia con ccx
+
+Si quieres forzar FEM real en el mismo comando, activa `--fem-ccx-run` y desactiva fallback:
+
+```powershell
+.\.venv\Scripts\python.exe -m mesh_app run --geo geo/perno_slot_crosshole.geo --case perno_01 --sigma-mode fem --fem-backend calculix --fem-ccx-run --fem-ccx-job job --no-fem-auto-fallback --python-exe .\.venv\Scripts\python.exe
+```
+
+Esto ejecuta `ccx` para `coarse/ref` y luego intenta leer `sigma_vm.csv` en cada workdir/tag. Si el CSV no aparece, el pipeline falla para evitar entrenar con datos sintéticos por error.

@@ -32,6 +32,12 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--fem-backend", default="fallback", choices=["fallback", "calculix"])
     run.add_argument("--fem-sigma-coarse-file", type=Path, default=None)
     run.add_argument("--fem-sigma-ref-file", type=Path, default=None)
+    run.add_argument("--fem-ccx-run", action=argparse.BooleanOptionalAction, default=False, help="Ejecuta ccx para cada tag FEM (coarse/ref) antes de leer sigma_vm.")
+    run.add_argument("--fem-ccx-exe", default="ccx")
+    run.add_argument("--fem-ccx-job", default="job")
+    run.add_argument("--fem-ccx-workdir-coarse", type=Path, default=None)
+    run.add_argument("--fem-ccx-workdir-ref", type=Path, default=None)
+
     run.add_argument(
         "--fem-auto-fallback",
         action=argparse.BooleanOptionalAction,
@@ -85,6 +91,11 @@ def main() -> None:
             fem_backend=args.fem_backend,
             fem_sigma_coarse_file=args.fem_sigma_coarse_file,
             fem_sigma_ref_file=args.fem_sigma_ref_file,
+            fem_ccx_run=args.fem_ccx_run,
+            fem_ccx_exe=args.fem_ccx_exe,
+            fem_ccx_job=args.fem_ccx_job,
+            fem_ccx_workdir_coarse=args.fem_ccx_workdir_coarse,
+            fem_ccx_workdir_ref=args.fem_ccx_workdir_ref,
         )
         run_end_to_end(
             cfg,

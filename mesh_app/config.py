@@ -17,6 +17,12 @@ class RunConfig:
     fem_sigma_coarse_file: Path | None = None
     fem_sigma_ref_file: Path | None = None
 
+    fem_ccx_run: bool = False
+    fem_ccx_exe: str = "ccx"
+    fem_ccx_job: str = "job"
+    fem_ccx_workdir_coarse: Path | None = None
+    fem_ccx_workdir_ref: Path | None = None
+
     coarse_name: str = "coarse_3d.msh"
     adapt_name: str = "adapt_3d.msh"
 
