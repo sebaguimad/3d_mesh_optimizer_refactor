@@ -31,6 +31,7 @@ Opciones principales:
 - `--fem-sigma-ref-file <csv/parquet>`
 - `--[no-]fem-auto-fallback` (default: activo; usa fallback si faltan CSV FEM)
 - `--[no-]fem-ccx-run`, `--fem-ccx-job`, `--fem-ccx-exe`, `--fem-ccx-workdir-*` para ejecutar ccx en secuencia
+- el extractor intenta usar `cgx` automáticamente para crear `sigma_vm.csv` si no existe tras ccx (`--fem-cgx-exe`, `--[no-]fem-cgx-run`)
 
 Salida esperada en `runs/<case>/gmsh/`:
 
@@ -137,4 +138,4 @@ Si quieres forzar FEM real en el mismo comando, activa `--fem-ccx-run` y desacti
 .\.venv\Scripts\python.exe -m mesh_app run --geo geo/perno_slot_crosshole.geo --case perno_01 --sigma-mode fem --fem-backend calculix --fem-ccx-run --fem-ccx-job job --no-fem-auto-fallback --python-exe .\.venv\Scripts\python.exe
 ```
 
-Esto ejecuta `ccx` para `coarse/ref` y luego intenta leer `sigma_vm.csv` en cada workdir/tag. Si el CSV no aparece, el pipeline falla para evitar entrenar con datos sintéticos por error.
+Esto ejecuta `ccx` para `coarse/ref` y, si no existe `sigma_vm.csv`, intenta extraerlo automáticamente con `cgx`. Si aun así el CSV no aparece o no cumple formato, el pipeline falla para evitar entrenar con datos sintéticos por error.

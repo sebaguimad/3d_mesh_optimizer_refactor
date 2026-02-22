@@ -22,6 +22,8 @@ class RunConfig:
     fem_ccx_job: str = "job"
     fem_ccx_workdir_coarse: Path | None = None
     fem_ccx_workdir_ref: Path | None = None
+    fem_cgx_exe: str = "cgx"
+    fem_cgx_run: bool = True
 
     coarse_name: str = "coarse_3d.msh"
     adapt_name: str = "adapt_3d.msh"

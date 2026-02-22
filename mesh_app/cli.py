@@ -37,6 +37,8 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--fem-ccx-job", default="job")
     run.add_argument("--fem-ccx-workdir-coarse", type=Path, default=None)
     run.add_argument("--fem-ccx-workdir-ref", type=Path, default=None)
+    run.add_argument("--fem-cgx-exe", default="cgx")
+    run.add_argument("--fem-cgx-run", action=argparse.BooleanOptionalAction, default=True)
 
     run.add_argument(
         "--fem-auto-fallback",
@@ -96,6 +98,8 @@ def main() -> None:
             fem_ccx_job=args.fem_ccx_job,
             fem_ccx_workdir_coarse=args.fem_ccx_workdir_coarse,
             fem_ccx_workdir_ref=args.fem_ccx_workdir_ref,
+            fem_cgx_exe=args.fem_cgx_exe,
+            fem_cgx_run=args.fem_cgx_run,
         )
         run_end_to_end(
             cfg,

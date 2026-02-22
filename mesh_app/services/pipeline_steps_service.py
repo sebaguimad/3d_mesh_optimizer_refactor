@@ -12,7 +12,6 @@ def _normalize_cli_path(path: Path | str) -> Path:
 
 def _default_sigma_file(case: str, runs_dir: Path, tag: str) -> Path:
     return runs_dir / case / "ccx" / tag / "sigma_vm.csv"
-
 class PipelineStepsService:
     def __init__(self, python_exe: str = "python", runs_dir: Path = Path("runs")):
         self.python_exe = python_exe
@@ -52,6 +51,8 @@ class PipelineStepsService:
         ccx_workdir_coarse: Path | None = None,
         ccx_workdir_ref: Path | None = None,
         ccx_run: bool = False,
+        cgx_exe: str = "cgx",
+        cgx_run: bool = True,
         auto_fallback_if_missing: bool = True,
     ) -> None:
         sigma_files: dict[str, Path | None] = {"coarse": sigma_coarse_file, "ref": sigma_ref_file}
@@ -69,9 +70,12 @@ class PipelineStepsService:
             ]
 
             if backend == "calculix":
-                cmd.extend(["--ccx-exe", ccx_exe, "--ccx-job", ccx_job])
+                cmd.extend(["--ccx-exe", ccx_exe, "--ccx-job", ccx_job, "--cgx-exe", cgx_exe])
                 if ccx_run:
                     cmd.append("--ccx-run")
+
+                if not cgx_run:
+                    cmd.append("--no-cgx-run")
 
                 wd = workdirs[tag]
                 if wd is not None:

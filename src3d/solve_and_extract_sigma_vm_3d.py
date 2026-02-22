@@ -9,6 +9,7 @@ import pandas as pd
 
 from src3d.fem.parse_results import read_sigma_vm_table
 from src3d.fem.calculix_runner import run_ccx
+from src3d.fem.cgx_extract_sigma_vm import run_cgx, write_cgx_script
 from src3d.paths3d import ensure_case_dirs, geometry_parquet, sigma_vm_parquet
 
 
@@ -90,8 +91,14 @@ def main() -> None:
     ap.add_argument(
         "--ccx-run",
         action="store_true",
-        help="Si se activa, ejecuta ccx antes de leer sigma_vm.csv. "
-             "Igual necesitas un postproceso que genere sigma_vm.csv.",
+        help="Si se activa, ejecuta ccx antes de leer sigma_vm.csv.",
+    )
+    ap.add_argument("--cgx-exe", default="cgx")
+    ap.add_argument(
+        "--cgx-run",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Si falta sigma_vm.csv tras ccx, intenta extraerlo automáticamente con cgx.",
     )
 
     args = ap.parse_args()
@@ -125,11 +132,21 @@ def main() -> None:
         if args.ccx_run:
             inp = workdir / f"{args.ccx_job}.inp"
             if not inp.exists():
-                raise FileNotFoundError(f"Falta INP para CalculiX: {inp}")
+                raise FileNotFoundError(
+                    f"Falta INP para CalculiX: {inp}. "
+                    "Coloca ese archivo o usa --ccx-workdir/--ccx-job correctos."
+                )
             run_ccx(args.ccx_exe, args.ccx_job, workdir)
 
         sigma_path = _normalize_cli_path(args.sigma_file) if args.sigma_file else _default_sigma_csv(args.case, runs_dir, args.tag)
         sigma_path = _normalize_cli_path(sigma_path)
+
+        if args.ccx_run and not sigma_path.exists() and args.cgx_run:
+            sigma_path.parent.mkdir(parents=True, exist_ok=True)
+            print(f"Info: no existe {sigma_path}; intentando extraer con cgx desde {workdir / (args.ccx_job + '.frd')}")
+            fbd = write_cgx_script(args.ccx_job, sigma_path)
+            run_cgx(args.cgx_exe, workdir, fbd)
+
 
         ext_df = read_sigma_vm_table(sigma_path)
 
