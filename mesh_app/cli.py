@@ -82,75 +82,79 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
-    if args.command == "run":
-        cfg = RunConfig(
-            case=args.case,
-            geo=args.geo,
-            runs_dir=args.runs_dir,
-            gmsh_exe=args.gmsh_exe,
-            python_exe=args.python_exe,
-            sigma_mode=args.sigma_mode,
-            fem_backend=args.fem_backend,
-            fem_sigma_coarse_file=args.fem_sigma_coarse_file,
-            fem_sigma_ref_file=args.fem_sigma_ref_file,
-            fem_ccx_run=args.fem_ccx_run,
-            fem_ccx_exe=args.fem_ccx_exe,
-            fem_ccx_job=args.fem_ccx_job,
-            fem_ccx_workdir_coarse=args.fem_ccx_workdir_coarse,
-            fem_ccx_workdir_ref=args.fem_ccx_workdir_ref,
-            fem_cgx_exe=args.fem_cgx_exe,
-            fem_cgx_run=args.fem_cgx_run,
-        )
-        run_end_to_end(
-            cfg,
-            tipx=args.tipx,
-            tipy=args.tipy,
-            tipz=args.tipz,
-            fem_auto_fallback=args.fem_auto_fallback,
-        )
+    try:
+        if args.command == "run":
+            cfg = RunConfig(
+                case=args.case,
+                geo=args.geo,
+                runs_dir=args.runs_dir,
+                gmsh_exe=args.gmsh_exe,
+                python_exe=args.python_exe,
+                sigma_mode=args.sigma_mode,
+                fem_backend=args.fem_backend,
+                fem_sigma_coarse_file=args.fem_sigma_coarse_file,
+                fem_sigma_ref_file=args.fem_sigma_ref_file,
+                fem_ccx_run=args.fem_ccx_run,
+                fem_ccx_exe=args.fem_ccx_exe,
+                fem_ccx_job=args.fem_ccx_job,
+                fem_ccx_workdir_coarse=args.fem_ccx_workdir_coarse,
+                fem_ccx_workdir_ref=args.fem_ccx_workdir_ref,
+                fem_cgx_exe=args.fem_cgx_exe,
+                fem_cgx_run=args.fem_cgx_run,
+            )
+            run_end_to_end(
+                cfg,
+                tipx=args.tipx,
+                tipy=args.tipy,
+                tipz=args.tipz,
+                fem_auto_fallback=args.fem_auto_fallback,
+            )
 
-    elif args.command == "plot-hist":
-        cmd = [
-            args.python_exe,
-            "-m",
-            "src3d.plot_hist_h3d",
-            "--case",
-            args.case,
-            "--runs-dir",
-            str(args.runs_dir),
-            "--coarse_tag",
-            args.coarse_tag,
-            "--adapt_tag",
-            args.adapt_tag,
-            "--mode",
-            args.mode,
-            "--bins",
-            str(args.bins),
-            "--col",
-            args.col,
-        ]
-        if args.print_stats:
-            cmd.append("--print_stats")
-        if args.save_dir:
-            cmd.extend(["--save_dir", args.save_dir])
-        if args.no_show:
-            cmd.append("--no_show")
-
-        run_cmd(cmd)
-
-    elif args.command == "compare-meshes":
-        run_cmd(
-            [
+        elif args.command == "plot-hist":
+            cmd = [
                 args.python_exe,
-                str(Path("compare_meshes.py")),
-                "--coarse",
-                str(args.coarse),
-                "--adapt",
-                str(args.adapt),
-                "--outdir",
-                str(args.outdir),
+                "-m",
+                "src3d.plot_hist_h3d",
+                "--case",
+                args.case,
+                "--runs-dir",
+                str(args.runs_dir),
+                "--coarse_tag",
+                args.coarse_tag,
+                "--adapt_tag",
+                args.adapt_tag,
+                "--mode",
+                args.mode,
+                "--bins",
+                str(args.bins),
+                "--col",
+                args.col,
             ]
-        )
+            if args.print_stats:
+                cmd.append("--print_stats")
+            if args.save_dir:
+                cmd.extend(["--save_dir", args.save_dir])
+            if args.no_show:
+                cmd.append("--no_show")
+
+            run_cmd(cmd)
+
+        elif args.command == "compare-meshes":
+            run_cmd(
+                [
+                    args.python_exe,
+                    str(Path("compare_meshes.py")),
+                    "--coarse",
+                    str(args.coarse),
+                    "--adapt",
+                    str(args.adapt),
+                    "--outdir",
+                    str(args.outdir),
+                ]
+            )
+    except KeyboardInterrupt:
+        print("\nCancelado por usuario (Ctrl+C).")
+        raise SystemExit(130) from None
 
 
 if __name__ == "__main__":

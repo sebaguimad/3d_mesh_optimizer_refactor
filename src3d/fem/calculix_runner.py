@@ -13,18 +13,8 @@ def run_ccx(ccx_exe: str, job_name: str, workdir: Path) -> tuple[Path, Path]:
     workdir.mkdir(parents=True, exist_ok=True)
 
     cmd = [ccx_exe, "-i", job_name]
-    proc = subprocess.run(
-        cmd,
-        cwd=str(workdir),
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-
-    if proc.stdout:
-        print(proc.stdout, end="")
-    if proc.stderr:
-        print(proc.stderr, end="")
+    print(f"[cmd] {' '.join(cmd)} (cwd={workdir})")
+    proc = subprocess.run(cmd, cwd=str(workdir), check=False)
 
     if proc.returncode != 0:
         raise RuntimeError(f"CalculiX falló ({proc.returncode}) con CMD: {' '.join(cmd)}")
